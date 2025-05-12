@@ -81,6 +81,7 @@ def _write_yaml_model(
         json_val = model.json(**json_kwargs)  # type: ignore
     else:
         json_val = model.model_dump_json(**json_kwargs)  # type: ignore
+    val = json.loads(json_val)
     # Allow setting custom writer
     if custom_yaml_writer is None:
         writer = YAML(typ="safe", pure=True)
@@ -94,7 +95,7 @@ def _write_yaml_model(
     writer.indent(mapping=indent, sequence=indent, offset=indent)
     writer.indent(mapping=map_indent, sequence=sequence_indent, offset=sequence_dash_offset)
     # TODO: Configure writer further?
-    writer.dump(json_val, stream)
+    writer.dump(val, stream)
 
 
 def to_yaml_str(
@@ -145,7 +146,8 @@ def to_yaml_str(
         custom_yaml_writer=custom_yaml_writer,
         **json_kwargs,
     )
-    return stream.getvalue()
+    stream.seek(0)
+    return stream.read()
 
 
 def to_yaml_file(
